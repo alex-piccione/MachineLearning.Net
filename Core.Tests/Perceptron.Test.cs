@@ -34,10 +34,12 @@ namespace Alex75.MachineLeraning.Core.Tests
         public void Train__when__trained__should__Return_True(float[] inputs, int target)
         {
             var perceptron = new Perceptron();
-            int epochs = 100;
+            int epochs = 10;
             float learningRate = 0.1f;
+
+            var trainingSet = CreateTrainingSet(inputs, target);
             
-            var result = perceptron.Train(inputs, target, learningRate, epochs);
+            var result = perceptron.Train(trainingSet, learningRate, epochs);
 
             result.IsTrained.ShouldBeTrue();
             result.UsedEpochs.ShouldBeLessThan(epochs);
@@ -50,10 +52,11 @@ namespace Alex75.MachineLeraning.Core.Tests
         public void Guess__when__trained__should__Return_RightOutput(float[] training_inputs, int training_target)
         {
             var perceptron = new Perceptron();
-            int epochs = 100;
+            int epochs = 10;
             float learningRate = 0.01f;
+            var trainingSet = CreateTrainingSet(training_inputs, training_target);
 
-            perceptron.Train(training_inputs, training_target, learningRate, epochs);
+            perceptron.Train(trainingSet, learningRate, epochs);
 
             var test_inputs = new float[] { 10f, 20f };
             var test_target = 1;
@@ -70,7 +73,9 @@ namespace Alex75.MachineLeraning.Core.Tests
             int epochs = 100;
             float learningRate = 0.01f;
 
-            perceptron.Train(training_inputs, training_target, learningRate, epochs);
+            var trainingSet = CreateTrainingSet(training_inputs, training_target);
+
+            perceptron.Train(trainingSet, learningRate, epochs);
 
             var test_inputs = new float[] { 10f, 20f };
             var test_target = 1;
@@ -85,31 +90,29 @@ namespace Alex75.MachineLeraning.Core.Tests
         public void Guess__when__trained_with_many_data__should__Return_RightOutput()
         {
             var perceptron = new Perceptron();
-            int epochs = 100;
+            int epochs = 10;
             float learningRate = 0.01f;
 
-            IList<TrainingRecord> trainingSet = new List<TrainingRecord>();
+            var trainingSet = new List<TrainingRecord>
+            {
+                // Positives
+                new TrainingRecord(new float[] { 1, 5 }, 1),
+                new TrainingRecord(new float[] { 1, 3 }, 1),
+                new TrainingRecord(new float[] { 4, 5 }, 1),
+                new TrainingRecord(new float[] { -3, 0 }, 1),
+                new TrainingRecord(new float[] { -1.8f, 4 }, 1),
 
-            // Positives
-            trainingSet.Add(new TrainingRecord(new float[] { 1, 5 }, 1));
-            trainingSet.Add(new TrainingRecord(new float[] { 1, 3 }, 1));
-            trainingSet.Add(new TrainingRecord(new float[] { 4, 5 }, 1));
-            trainingSet.Add(new TrainingRecord(new float[] { -3, 0 }, 1));
-            trainingSet.Add(new TrainingRecord(new float[] { -1.8f, 4 }, 1));
+                // Negatives
+                new TrainingRecord(new float[] { 3, 2 }, -1),
+                new TrainingRecord(new float[] { 3.5f, 0 }, -1),
+                new TrainingRecord(new float[] { 5.5f, 1 }, -1),
+                new TrainingRecord(new float[] { -1, -3 }, -1),
+                new TrainingRecord(new float[] { 1.1f, -2 }, -1),
+                new TrainingRecord(new float[] { 3.8f, -3 }, -1)
+            };
 
-            // Negatives
-            trainingSet.Add(new TrainingRecord(new float[] { 3, 2 }, -1));
-            trainingSet.Add(new TrainingRecord(new float[] { 3.5f, 0 }, -1));
-            trainingSet.Add(new TrainingRecord(new float[] { 5.5f, 1 }, -1));
-            //trainingSet.Add(new TrainingRecord(new float[] { 7.3f, 5 }, -1));
-            //trainingSet.Add(new TrainingRecord(new float[] { 0.8f, -5 }, -1));
-            trainingSet.Add(new TrainingRecord(new float[] { -1, -3 }, -1));
-            trainingSet.Add(new TrainingRecord(new float[] { 1.1f, -2 }, -1));
-            trainingSet.Add(new TrainingRecord(new float[] { 3.8f, -3 }, -1));
 
-           
-            foreach(var training in trainingSet)
-                perceptron.Train(training.inputs, training.output, learningRate, epochs);
+            perceptron.Train(trainingSet, learningRate, epochs);
 
             TrainingRecord[] tests = {
                 new TrainingRecord(new float[] { -2, 2 }, 1),
@@ -123,6 +126,11 @@ namespace Alex75.MachineLeraning.Core.Tests
                 var output = perceptron.Guess(test.inputs);
                 output.ShouldEqual(test.output);
             }
+        }
+
+        private IEnumerable<TrainingRecord> CreateTrainingSet(float[] inputs, int target)
+        {
+            return new List<TrainingRecord>() { new TrainingRecord(inputs, target) };
         }
     }
 }
