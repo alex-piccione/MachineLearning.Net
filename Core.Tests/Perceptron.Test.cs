@@ -79,5 +79,50 @@ namespace Alex75.MachineLeraning.Core.Tests
 
             output.ShouldNotEqual(test_target);
         }
+
+
+        [Test]
+        public void Guess__when__trained_with_many_data__should__Return_RightOutput()
+        {
+            var perceptron = new Perceptron();
+            int epochs = 100;
+            float learningRate = 0.01f;
+
+            IList<TrainingRecord> trainingSet = new List<TrainingRecord>();
+
+            // Positives
+            trainingSet.Add(new TrainingRecord(new float[] { 1, 5 }, 1));
+            trainingSet.Add(new TrainingRecord(new float[] { 1, 3 }, 1));
+            trainingSet.Add(new TrainingRecord(new float[] { 4, 5 }, 1));
+            trainingSet.Add(new TrainingRecord(new float[] { -3, 0 }, 1));
+            trainingSet.Add(new TrainingRecord(new float[] { -1.8f, 4 }, 1));
+
+            // Negatives
+            trainingSet.Add(new TrainingRecord(new float[] { 3, 2 }, -1));
+            trainingSet.Add(new TrainingRecord(new float[] { 3.5f, 0 }, -1));
+            trainingSet.Add(new TrainingRecord(new float[] { 5.5f, 1 }, -1));
+            //trainingSet.Add(new TrainingRecord(new float[] { 7.3f, 5 }, -1));
+            //trainingSet.Add(new TrainingRecord(new float[] { 0.8f, -5 }, -1));
+            trainingSet.Add(new TrainingRecord(new float[] { -1, -3 }, -1));
+            trainingSet.Add(new TrainingRecord(new float[] { 1.1f, -2 }, -1));
+            trainingSet.Add(new TrainingRecord(new float[] { 3.8f, -3 }, -1));
+
+           
+            foreach(var training in trainingSet)
+                perceptron.Train(training.inputs, training.output, learningRate, epochs);
+
+            TrainingRecord[] tests = {
+                new TrainingRecord(new float[] { -2, 2 }, 1),
+                new TrainingRecord(new float[] { -5.1f, 6.8f }, 1),
+                new TrainingRecord(new float[] { -0.8f, -5 }, -1),
+                new TrainingRecord(new float[] { 7.4f, 2 }, -1),
+            };
+
+            foreach (var test in tests)
+            {
+                var output = perceptron.Guess(test.inputs);
+                output.ShouldEqual(test.output);
+            }
+        }
     }
 }
